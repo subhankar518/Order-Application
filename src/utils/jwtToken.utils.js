@@ -2,34 +2,42 @@ import jwt from "jsonwebtoken";
 import { User } from "../models/user.model.js";
 
 const generateAccessToken = async (userId) => {
-  const token = await jwt.sign(
-    { id: userId },
-    process.env.ACCESS_TOKEN_SECRET,
-    {
-      expiresIn: "5h",
-    },
-  );
+    const token = await jwt.sign(
+        { id: userId },
+        process.env.ACCESS_TOKEN_SECRET,
+        {
+            expiresIn: "5h",
+        }
+    );
 
-  return token;
+    return token;
 };
 
 const generateRefreshToken = async (userId) => {
-  const token = await jwt.sign(
-    { id: userId },
-    process.env.REFRESH_TOKEN_SECRET,
-    {
-      expiresIn: "7d",
-    },
-  );
+    const token = await jwt.sign(
+        { id: userId },
+        process.env.REFRESH_TOKEN_SECRET,
+        {
+            expiresIn: "7d",
+        }
+    );
 
-  const updateRefreshToken = await User.updateOne(
-    { _id: userId },
-    {
-      refreshToken: token,
-    },
-  );
+    const updateRefreshToken = await User.updateOne(
+        { _id: userId },
+        {
+            refreshToken: token,
+        }
+    );
 
-  return token;
+    return token;
 };
 
-export { generateAccessToken, generateRefreshToken };
+const verifyToken = async (refreshToken) => {
+    const result = await jwt.verify(
+        refreshToken,
+        process.env.REFRESH_TOKEN_SECRET
+    );
+    return result;
+};
+
+export { generateAccessToken, generateRefreshToken, verifyToken };
